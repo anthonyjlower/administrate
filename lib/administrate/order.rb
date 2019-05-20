@@ -51,6 +51,8 @@ module Administrate
 
       return order_by_id(relation) if belongs_to_attribute?(relation)
 
+      return order_by_name(relation) if has_one_attribute?(relation)
+
       relation
     end
 
@@ -65,6 +67,10 @@ module Administrate
       relation.reorder("#{attribute}_id #{direction}")
     end
 
+    def order_by_name(relation)
+      relation.joins(attribute.to_sym).merge(associated_model.order(sortable_column => direction.to_sym))
+    end
+
     def has_many_attribute?(relation)
       reflect_association(relation).macro == :has_many
     end
@@ -73,8 +79,20 @@ module Administrate
       reflect_association(relation).macro == :belongs_to
     end
 
+    def has_one_attribute?(relation)
+      reflect_association(relation).macro == :has_one
+    end
+
     def reflect_association(relation)
       relation.klass.reflect_on_association(attribute.to_s)
+    end
+
+    def associated_model
+      attribute.titleize.constantize
+    end
+
+    def sortable_column
+      associated_model.sortable_column
     end
   end
 end
