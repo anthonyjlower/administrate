@@ -51,7 +51,7 @@ module Administrate
 
       return order_by_id(relation) if belongs_to_attribute?(relation)
 
-      return order_by_name(relation) if has_one_attribute?(relation)
+      return order_by_sortable_column(relation) if has_one_attribute?(relation)
 
       relation
     end
@@ -67,7 +67,7 @@ module Administrate
       relation.reorder("#{attribute}_id #{direction}")
     end
 
-    def order_by_name(relation)
+    def order_by_sortable_column(relation)
       relation.joins(attribute.to_sym).merge(associated_model.order(sortable_column => direction.to_sym))
     end
 
